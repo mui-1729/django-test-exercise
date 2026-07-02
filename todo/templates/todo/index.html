@@ -43,10 +43,18 @@
         <li>Posted at: {{ task.posted_at }}</li>
         {% if task.due_at %}
         <li>Due at: {{ task.due_at }}</li>
-        {% endif %} {% if task.completed %}
+        {% endif %}
+
+        {% if task.completed %}
         <li>Status: Completed</li>
         {% else %}
         <li>Status: Not Completed</li>
+        <li>
+          <form action="{% url 'complete' task.id %}" method="post">
+            {% csrf_token %}
+            <button type="submit">終了</button>
+          </form>
+        </li>
         {% endif %}
       </ul>
     </div>

@@ -5,20 +5,22 @@
 <head>
   <title>To Do Application</title>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="author" content="INIAD" />
+  <link rel="stylesheet" href="{% static 'todo/style.css' %}" />
 </head>
 
 <body>
   <h1>Sample To Do Application</h1>
   <p>You can submit tasks from the following form.</p>
-  <form action="{% url 'index' %}" method="post">
+  <form action="{% url 'index' %}" method="post" class="task-form">
     {% csrf_token %}
     <div>
-      <label for="titleInput">Title</label><br />
+      <label for="titleInput">Title</label>
       <input id="titleInput" name="title" type="text" placeholder="Input title" />
     </div>
     <div>
-      <label for="dueInput">Due at:</label><br />
+      <label for="dueInput">Due at</label>
       <input id="dueInput" name="due_at" type="datetime-local" />
     </div>
     <div>
@@ -27,7 +29,7 @@
   </form>
   <br />
 
-  <div>
+  <div class="sort-links">
     <a href="{% url 'index' %}?order=due">Sort by Due Date</a> |
     <a href="{% url 'index' %}?order=post">Sort by Posted Date</a>
   </div>
@@ -42,11 +44,11 @@
       {% endif %}
 
       {% if task.completed %}
-      <li>Status: Completed</li>
+      <li class="task-status completed">Status: Completed</li>
       {% else %}
-      <li>Status: Not Completed</li>
-      <li>
-        <form action="{% url 'close' task.id %}" method="post">
+      <li class="task-status pending">Status: Not Completed</li>
+      <li class="task-action">
+        <form action="{% url 'close' task.id %}" method="post" class="inline-form">
           {% csrf_token %}
           <button type="submit">終了</button>
         </form>

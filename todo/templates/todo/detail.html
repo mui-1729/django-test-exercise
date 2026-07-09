@@ -4,26 +4,29 @@
   <head>
     <title>To Do Application</title>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="author" content="INIAD" />
+    <link rel="stylesheet" href="{% static 'todo/style.css' %}" />
   </head>
 
   <body>
     <h1>{{ task.title }}</h1>
-    <ul>
+    <ul class="detail-meta">
       <li>Posted at: {{ task.posted_at }}</li>
       {% if task.due_at %}
       <li>Due at: {{ task.due_at }}</li>
-      {% endif %} {% if task.completed %}
-      <li>Status: Completed</li>
+      {% endif %}
+      {% if task.completed %}
+      <li class="task-status completed">Status: Completed</li>
       {% else %}
-      <li>Status: Not Completed</li>
+      <li class="task-status pending">Status: Not Completed</li>
       {% endif %}
     </ul>
 
-    <div>
+    <div class="detail-links">
       <a href="{% url 'index' %}">Top</a>
-      | <a href="{% url 'delete' task.id %}">Delete</a>
-      | <a href="{% url 'update' task.id %}">Edit</a>
+      <a href="{% url 'delete' task.id %}">Delete</a>
+      <a href="{% url 'update' task.id %}">Edit</a>
     </div>
   </body>
 </html>

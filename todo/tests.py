@@ -125,6 +125,32 @@ class TodoViewTestCase(TestCase):
         task = Task.objects.get(pk=task.pk)
         self.assertTrue(task.completed)
 
+    def test_close_post_fail(self):
+        client = Client()
+        response = client.post('/999/close/')
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_index_incomplete_task_shows_close_action(self):
+        task = Task(title='task1')
+        task.save()
+        client = Client()
+        response = client.get('/')
+
+        self.assertContains(response, 'Status: Not Completed')
+        self.assertContains(response, '/{}/close/'.format(task.pk))
+        self.assertContains(response, '<button type="submit">終了</button>', html=True)
+
+    def test_index_completed_task_hides_close_action(self):
+        task = Task(title='task1', completed=True)
+        task.save()
+        client = Client()
+        response = client.get('/')
+
+        self.assertContains(response, 'Status: Completed')
+        self.assertNotContains(response, '/{}/close/'.format(task.pk))
+        self.assertNotContains(response, '<button type="submit">終了</button>', html=True)
+
     def test_delete_get_success(self):
         task = Task(title='task1', due_at=timezone.make_aware(datetime(2024, 7, 1)))
         task.save()

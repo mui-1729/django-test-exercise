@@ -191,7 +191,9 @@ class TodoViewTestCase(TestCase):
     def test_delete_get_fail(self):
         client = Client()
         response = client.get('/1/delete')
-        
+
+        self.assertEqual(response.status_code, 404)
+
     def test_update_post_fail(self):
         client = Client()
         data = {'title': 'task2', 'due_at': '2024-08-01 12:00:00'}

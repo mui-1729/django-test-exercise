@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <title>Delete task</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <h1>Delete task</h1>
+    <p>「{{ task.title }}」を削除しますか？</p>
+    <form action="{% url 'delete' task.id %}" method="post">
+      {% csrf_token %}
+      <button type="submit">削除する</button>
+    </form>
+    <a href="{% url 'detail' task.id %}">キャンセル</a>
+  </body>
+</html>

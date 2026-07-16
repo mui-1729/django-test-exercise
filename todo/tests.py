@@ -77,6 +77,13 @@ class TodoViewTestCase(TestCase):
         self.assertEqual(response.templates[0].name, 'todo/index.html')
         self.assertEqual(len(response.context['tasks']), 0)
 
+    def test_index_task_shows_priority(self):
+        Task.objects.create(title='urgent task', priority=Task.PRIORITY_HIGH)
+
+        response = Client().get('/')
+
+        self.assertContains(response, 'Priority: 高')
+
     def test_index_post(self):
         client = Client()
         data = {

@@ -18,15 +18,20 @@ def _parse_due_at(value):
 
 
 def index(request):
-    if request.method == 'POST':
-        task = Task(title=request.POST['title'],
-                    due_at=_parse_due_at(request.POST.get('due_at')))
-        task.save()
+    if request.GET.get('filter') == 'complete':
+        tasks = Task.objects.filter(completed=True)
 
-    if request.GET.get('order') == 'due':
+    elif request.GET.get('filter') == 'incomplete':
+        tasks = Task.objects.filter(completed=False)
+
+    elif request.GET.get('order') == 'due':
         tasks = Task.objects.order_by('due_at')
-    else:
+
+    elif request.GET.get('order') == 'post':
         tasks = Task.objects.order_by('-posted_at')
+
+    else:
+        tasks = Task.objects.all()
 
     context = {
         'tasks': tasks

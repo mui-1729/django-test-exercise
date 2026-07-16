@@ -20,7 +20,8 @@ def _parse_due_at(value):
 def index(request):
     if request.method == 'POST':
         task = Task(title=request.POST['title'],
-                    due_at=_parse_due_at(request.POST.get('due_at')))
+                    due_at=_parse_due_at(request.POST.get('due_at')),
+                    notes=request.POST.get('notes', ''))
         task.save()
 
     if request.GET.get('order') == 'due':
@@ -74,6 +75,7 @@ def update(request, task_id):
     if request.method == 'POST':
         task.title = request.POST['title']
         task.due_at = _parse_due_at(request.POST.get('due_at'))
+        task.notes = request.POST.get('notes', '')
         task.save()
         return redirect('detail', task_id=task.id)
 

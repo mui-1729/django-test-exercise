@@ -98,13 +98,13 @@ class TodoViewTestCase(TestCase):
         self.assertEqual(response.templates[0].name, 'todo/index.html')
         self.assertEqual(len(response.context['tasks']), 1)
         self.assertEqual(response.context['tasks'][0].notes, 'Task details')
+        self.assertEqual(response.context['tasks'][0].priority, Task.PRIORITY_HIGH)
 
     def test_index_post_without_notes(self):
         response = Client().post('/', {'title': 'No notes'})
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Task.objects.get(title='No notes').notes, '')
-        self.assertEqual(response.context['tasks'][0].priority, Task.PRIORITY_HIGH)
 
     def test_index_get_order_priority(self):
         low = Task.objects.create(title='low', priority=Task.PRIORITY_LOW)

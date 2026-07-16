@@ -31,11 +31,18 @@ class TaskModelTestCase(TestCase):
         self.assertFalse(task.completed)
         self.assertEqual(task.due_at, None)
         self.assertEqual(task.notes, '')
+        self.assertEqual(task.priority, Task.PRIORITY_MEDIUM)
 
     def test_create_task_with_notes(self):
         task = Task.objects.create(title='task with notes', notes='Remember this')
 
         self.assertEqual(task.notes, 'Remember this')
+
+    def test_create_task_with_priority(self):
+        task = Task(title='urgent task', priority=Task.PRIORITY_HIGH)
+        task.save()
+
+        self.assertEqual(Task.objects.get(pk=task.pk).priority, Task.PRIORITY_HIGH)
 
     def test_is_overdue_future(self):
         due = timezone.make_aware(datetime(2024, 6, 30, 23, 59, 59))
@@ -76,6 +83,7 @@ class TodoViewTestCase(TestCase):
             'title': 'Test Task',
             'due_at': '2024-06-30 23:59:59',
             'notes': 'Task details',
+            'priority': Task.PRIORITY_HIGH,
         }
         response = client.post('/', data)
 
@@ -89,6 +97,16 @@ class TodoViewTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Task.objects.get(title='No notes').notes, '')
+        self.assertEqual(response.context['tasks'][0].priority, Task.PRIORITY_HIGH)
+
+    def test_index_get_order_priority(self):
+        low = Task.objects.create(title='low', priority=Task.PRIORITY_LOW)
+        high = Task.objects.create(title='high', priority=Task.PRIORITY_HIGH)
+        medium = Task.objects.create(title='medium', priority=Task.PRIORITY_MEDIUM)
+
+        response = Client().get('/?order=priority')
+
+        self.assertEqual(list(response.context['tasks']), [high, medium, low])
 
     def test_index_get_order_post(self):
         task1 = Task(title='task1', due_at=timezone.make_aware(datetime(2024, 7, 1)))
@@ -121,6 +139,7 @@ class TodoViewTestCase(TestCase):
             title='task1',
             due_at=timezone.make_aware(datetime(2024, 7, 1)),
             notes='Detailed note',
+            priority=Task.PRIORITY_HIGH,
         )
         task.save()
         client = Client()
@@ -130,6 +149,7 @@ class TodoViewTestCase(TestCase):
         self.assertEqual(response.templates[0].name, 'todo/detail.html')
         self.assertEqual(response.context['task'], task)
         self.assertContains(response, 'Notes: Detailed note')
+        self.assertContains(response, 'Priority: 高')
 
     def test_detail_get_fail(self):
         client = Client()
@@ -231,6 +251,7 @@ class TodoViewTestCase(TestCase):
             'title': 'task2',
             'due_at': '2024-08-01 12:00:00',
             'notes': 'Updated note',
+            'priority': Task.PRIORITY_LOW,
         }
         response = client.post('/{}/update'.format(task.pk), data)
 
@@ -239,6 +260,7 @@ class TodoViewTestCase(TestCase):
         self.assertEqual(task.title, 'task2')
         self.assertEqual(task.due_at, timezone.make_aware(datetime(2024, 8, 1, 12, 0, 0)))
         self.assertEqual(task.notes, 'Updated note')
+        self.assertEqual(task.priority, Task.PRIORITY_LOW)
 
     def test_delete_get_fail(self):
         client = Client()

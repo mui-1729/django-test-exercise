@@ -17,20 +17,34 @@ def _parse_due_at(value):
     return make_aware(due_at)
 
 
+def _parse_priority(value):
+    try:
+        priority = int(value)
+    except (TypeError, ValueError):
+        return Task.PRIORITY_MEDIUM
+
+    valid_priorities = {choice[0] for choice in Task.PRIORITY_CHOICES}
+    return priority if priority in valid_priorities else Task.PRIORITY_MEDIUM
+
+
 def index(request):
     if request.method == 'POST':
         task = Task(title=request.POST['title'],
                     due_at=_parse_due_at(request.POST.get('due_at')),
-                    notes=request.POST.get('notes', ''))
+                    notes=request.POST.get('notes', ''),
+                    priority=_parse_priority(request.POST.get('priority')))
         task.save()
 
-    if request.GET.get('order') == 'due':
+    if request.GET.get('order') == 'priority':
+        tasks = Task.objects.order_by('priority', '-posted_at')
+    elif request.GET.get('order') == 'due':
         tasks = Task.objects.order_by('due_at')
     else:
         tasks = Task.objects.order_by('-posted_at')
 
     context = {
-        'tasks': tasks
+        'tasks': tasks,
+        'priority_choices': Task.PRIORITY_CHOICES,
     }
     return render(request, 'todo/index.html', context)
 
@@ -82,10 +96,12 @@ def update(request, task_id):
         task.title = request.POST['title']
         task.due_at = _parse_due_at(request.POST.get('due_at'))
         task.notes = request.POST.get('notes', '')
+        task.priority = _parse_priority(request.POST.get('priority'))
         task.save()
         return redirect('detail', task_id=task.id)
 
     context = {
-        'task': task
+        'task': task,
+        'priority_choices': Task.PRIORITY_CHOICES,
     }
     return render(request, 'todo/edit.html', context)

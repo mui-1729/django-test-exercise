@@ -28,12 +28,21 @@
       <textarea id="notesInput" name="notes" rows="4"></textarea>
     </div>
     <div>
+      <label for="priorityInput">Priority</label>
+      <select id="priorityInput" name="priority">
+        {% for value, label in priority_choices %}
+        <option value="{{ value }}" {% if value == 2 %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
       <button type="submit">Submit</button>
     </div>
   </form>
   <br />
 
   <div class="sort-links">
+    <a href="{% url 'index' %}?order=priority">Sort by Priority</a> |
     <a href="{% url 'index' %}?order=due">Sort by Due Date</a> |
     <a href="{% url 'index' %}?order=post">Sort by Posted Date</a>
   </div>
@@ -43,6 +52,7 @@
     <h2><a href="{% url 'detail' task.id %}">{{ task.title }}</a></h2>
     <ul>
       <li>Posted at: {{ task.posted_at }}</li>
+      <li>Priority: {{ task.get_priority_display }}</li>
       {% if task.due_at %}
       <li>Due at: {{ task.due_at }}</li>
       {% endif %}

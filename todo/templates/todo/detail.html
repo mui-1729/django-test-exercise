@@ -17,6 +17,7 @@
       <li>Due at: {{ task.due_at }}</li>
       {% endif %}
       <li>Notes: {{ task.notes }}</li>
+      <li>Priority: {{ task.get_priority_display }}</li>
       {% if task.completed %}
       <li class="task-status completed">Status: Completed</li>
       {% else %}

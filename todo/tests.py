@@ -173,14 +173,34 @@ class TodoViewTestCase(TestCase):
         self.assertNotContains(response, '/{}/close/'.format(task.pk))
         self.assertNotContains(response, '<button type="submit">終了</button>', html=True)
 
-    def test_delete_get_success(self):
+    def test_delete_get_shows_confirmation(self):
         task = Task(title='task1', due_at=timezone.make_aware(datetime(2024, 7, 1)))
         task.save()
         client = Client()
         response = client.get('/{}/delete'.format(task.pk))
 
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.templates[0].name, 'todo/delete_confirm.html')
+        self.assertEqual(response.context['task'], task)
+        self.assertContains(response, task.title)
+        self.assertContains(response, 'csrfmiddlewaretoken')
+        self.assertTrue(Task.objects.filter(pk=task.pk).exists())
+
+    def test_delete_post_success(self):
+        task = Task.objects.create(title='task1')
+
+        response = Client().post('/{}/delete'.format(task.pk))
+
         self.assertEqual(response.status_code, 302)
         self.assertFalse(Task.objects.filter(pk=task.pk).exists())
+
+    def test_delete_confirmation_cancel(self):
+        task = Task.objects.create(title='task1')
+
+        response = Client().get('/{}/'.format(task.pk))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(Task.objects.filter(pk=task.pk).exists())
 
     def test_update_get_success(self):
         task = Task(title='task1', due_at=timezone.make_aware(datetime(2024, 7, 1)))
@@ -220,6 +240,21 @@ class TodoViewTestCase(TestCase):
         response = client.get('/1/delete')
 
         self.assertEqual(response.status_code, 404)
+
+    def test_delete_post_fail(self):
+        response = Client().post('/999/delete')
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_delete_post_requires_csrf_token(self):
+        task = Task.objects.create(title='task1')
+
+        response = Client(enforce_csrf_checks=True).post(
+            '/{}/delete'.format(task.pk)
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.assertTrue(Task.objects.filter(pk=task.pk).exists())
 
     def test_update_post_fail(self):
         client = Client()

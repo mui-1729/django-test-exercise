@@ -63,8 +63,14 @@ def delete(request, task_id):
     except Task.DoesNotExist:
         raise Http404("Task does not exist")
 
-    task.delete()
-    return redirect('index')
+    if request.method == 'POST':
+        task.delete()
+        return redirect('index')
+
+    context = {
+        'task': task,
+    }
+    return render(request, 'todo/delete_confirm.html', context)
 
 
 def update(request, task_id):

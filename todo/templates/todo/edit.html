@@ -28,6 +28,14 @@
         <textarea id="notesInput" name="notes" rows="4">{{ task.notes }}</textarea>
       </div>
       <div>
+        <label for="priorityInput">Priority</label>
+        <select id="priorityInput" name="priority">
+        {% for value, label in priority_choices %}
+          <option value="{{ value }}" {% if task.priority == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
         <button type="submit">Submit</button>
       </div>
     </form>

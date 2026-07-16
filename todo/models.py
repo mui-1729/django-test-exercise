@@ -17,3 +17,6 @@ class Task(models.Model):
         if self.due_at is None:
             return False
         return self.due_at < timezone.now()
+    def mark_completed(self):
+        self.completed = True
+        self.save(update_fields=['completed'])

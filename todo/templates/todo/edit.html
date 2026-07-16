@@ -24,6 +24,10 @@
         <input id="dueInput" name="due_at" type="datetime-local" value="{{ task.due_at|date:'Y-m-d\\TH:i' }}">
       </div>
       <div>
+        <label for="notesInput">Notes</label>
+        <textarea id="notesInput" name="notes" rows="4">{{ task.notes }}</textarea>
+      </div>
+      <div>
         <button type="submit">Submit</button>
       </div>
     </form>

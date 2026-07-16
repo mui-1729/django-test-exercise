@@ -197,9 +197,14 @@ class TodoViewTestCase(TestCase):
     def test_delete_confirmation_cancel(self):
         task = Task.objects.create(title='task1')
 
-        response = Client().get('/{}/'.format(task.pk))
+        response = Client().get('/{}/delete'.format(task.pk))
 
         self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            '<a href="/{}/">キャンセル</a>'.format(task.pk),
+            html=True,
+        )
         self.assertTrue(Task.objects.filter(pk=task.pk).exists())
 
     def test_update_get_success(self):

@@ -24,9 +24,22 @@
         <input id="dueInput" name="due_at" type="datetime-local" value="{{ task.due_at|date:'Y-m-d\\TH:i' }}">
       </div>
       <div>
+        <label for="notesInput">Notes</label>
+        <textarea id="notesInput" name="notes" rows="4">{{ task.notes }}</textarea>
+      </div>
+      <div>
+        <label for="priorityInput">Priority</label>
+        <select id="priorityInput" name="priority">
+        {% for value, label in priority_choices %}
+          <option value="{{ value }}" {% if task.priority == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
         <button type="submit">Submit</button>
       </div>
     </form>
+    <p><a href="{% url 'detail' task.id %}">Cancel</a></p>
   </body>
 
 </html>

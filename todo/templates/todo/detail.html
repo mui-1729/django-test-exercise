@@ -16,12 +16,21 @@
       {% if task.due_at %}
       <li>Due at: {{ task.due_at }}</li>
       {% endif %}
+      <li>Notes: {{ task.notes }}</li>
+      <li>Priority: {{ task.get_priority_display }}</li>
       {% if task.completed %}
       <li class="task-status completed">Status: Completed</li>
       {% else %}
       <li class="task-status pending">Status: Not Completed</li>
       {% endif %}
     </ul>
+
+    {% if not task.completed %}
+    <form action="{% url 'close' task.id %}" method="post" class="inline-form">
+      {% csrf_token %}
+      <button type="submit">終了</button>
+    </form>
+    {% endif %}
 
     <div class="detail-links">
       <a href="{% url 'index' %}">Top</a>

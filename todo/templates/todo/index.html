@@ -44,7 +44,9 @@
   <div class="sort-links">
     <a href="{% url 'index' %}?order=priority">Sort by Priority</a> |
     <a href="{% url 'index' %}?order=due">Sort by Due Date</a> |
-    <a href="{% url 'index' %}?order=post">Sort by Posted Date</a>
+    <a href="{% url 'index' %}?order=post">Sort by Posted Date</a> |
+    <a href="{% url 'index' %}?filter=complete">Completed Tasks</a> |
+    <a href="{% url 'index' %}?filter=incomplete">Incomplete Tasks</a>
   </div>
 
   {% for task in tasks %}

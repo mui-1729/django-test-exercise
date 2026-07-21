@@ -35,12 +35,22 @@ def index(request):
                     priority=_parse_priority(request.POST.get('priority')))
         task.save()
 
+    if request.GET.get('filter') == 'complete':
+        tasks = Task.objects.filter(completed=True)
+
+    elif request.GET.get('filter') == 'incomplete':
+        tasks = Task.objects.filter(completed=False)
+
     if request.GET.get('order') == 'priority':
         tasks = Task.objects.order_by('priority', '-posted_at')
     elif request.GET.get('order') == 'due':
         tasks = Task.objects.order_by('due_at')
-    else:
+
+    elif request.GET.get('order') == 'post':
         tasks = Task.objects.order_by('-posted_at')
+
+    else:
+        tasks = Task.objects.all()
 
     context = {
         'tasks': tasks,

@@ -34,6 +34,8 @@ def index(request):
                     notes=request.POST.get('notes', ''),
                     priority=_parse_priority(request.POST.get('priority')))
         task.save()
+    
+    tasks = Task.objects.all()
 
     if request.GET.get('filter') == 'complete':
         tasks = Task.objects.filter(completed=True)
@@ -43,14 +45,12 @@ def index(request):
 
     if request.GET.get('order') == 'priority':
         tasks = Task.objects.order_by('priority', '-posted_at')
+
     elif request.GET.get('order') == 'due':
         tasks = Task.objects.order_by('due_at')
 
     elif request.GET.get('order') == 'post':
         tasks = Task.objects.order_by('-posted_at')
-
-    else:
-        tasks = Task.objects.all()
 
     context = {
         'tasks': tasks,

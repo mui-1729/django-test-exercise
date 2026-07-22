@@ -56,6 +56,31 @@ class TaskModelTestCase(TestCase):
 
         self.assertFalse(task.is_overdue(current))
 
+    def test_is_past_due_future(self):
+        task = Task.objects.create(
+            title='future task',
+            due_at=timezone.now() + timedelta(hours=1),
+        )
+
+        self.assertFalse(task.is_past_due)
+
+    def test_is_past_due_past(self):
+        task = Task.objects.create(
+            title='past due task',
+            due_at=timezone.now() - timedelta(hours=1),
+        )
+
+        self.assertTrue(task.is_past_due)
+
+    def test_is_past_due_completed(self):
+        task = Task.objects.create(
+            title='completed past due task',
+            due_at=timezone.now() - timedelta(hours=1),
+            completed=True,
+        )
+
+        self.assertFalse(task.is_past_due)
+
 
 class TodoViewTestCase(TestCase):
     def test_index_get(self):

@@ -202,6 +202,15 @@ button:hover,
   margin-top: 16px;
 }
 
+.overdue-warning {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.text.overdue-warning {
+  border-color: var(--danger);
+}
+
 @media (max-width: 640px) {
   body {
     padding: 20px 12px 32px;

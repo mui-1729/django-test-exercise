@@ -10,11 +10,11 @@
   </head>
 
   <body>
-    <h1>{{ task.title }}</h1>
+    <h1 class="{% if task.is_past_due %}overdue-warning{% endif %}">{{ task.title }}</h1>
     <ul class="detail-meta">
       <li>Posted at: {{ task.posted_at }}</li>
       {% if task.due_at %}
-      <li>Due at: {{ task.due_at }}</li>
+      <li>Due at: {{ task.due_at }} {% if task.is_past_due %}<strong class="overdue-warning">【警告: 期限切れ】</strong>{% endif %}</li>
       {% endif %}
       <li>Notes: {{ task.notes }}</li>
       <li>Priority: {{ task.get_priority_display }}</li>

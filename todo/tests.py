@@ -1,6 +1,8 @@
 from django.test import TestCase, Client
 from django.utils import timezone
-from datetime import datetime
+from datetime import datetime, timedelta
+from django.core.management import call_command
+from io import StringIO
 from todo.models import Task
 
 # Create your tests here.
@@ -66,6 +68,31 @@ class TaskModelTestCase(TestCase):
         task.save()
 
         self.assertFalse(task.is_overdue(current))
+
+    def test_is_past_due_future(self):
+        task = Task.objects.create(
+            title='future task',
+            due_at=timezone.now() + timedelta(hours=1),
+        )
+
+        self.assertFalse(task.is_past_due)
+
+    def test_is_past_due_past(self):
+        task = Task.objects.create(
+            title='past due task',
+            due_at=timezone.now() - timedelta(hours=1),
+        )
+
+        self.assertTrue(task.is_past_due)
+
+    def test_is_past_due_completed(self):
+        task = Task.objects.create(
+            title='completed past due task',
+            due_at=timezone.now() - timedelta(hours=1),
+            completed=True,
+        )
+
+        self.assertFalse(task.is_past_due)
 
 
 class TodoViewTestCase(TestCase):
@@ -296,3 +323,24 @@ class TodoViewTestCase(TestCase):
         response = client.post('/999/update', data)
 
         self.assertEqual(response.status_code, 404)
+
+
+class CheckRemindersCommandTestCase(TestCase):
+    def test_check_reminders_command(self):
+        now = timezone.now()
+        
+        Task.objects.create(title='task_normal', due_at=now + timedelta(hours=12))
+        Task.objects.create(title='task_none')
+        Task.objects.create(title='task_future', due_at=now + timedelta(days=2))
+        Task.objects.create(title='task_overdue', due_at=now - timedelta(hours=1))
+        Task.objects.create(title='task_completed', due_at=now + timedelta(hours=12), completed=True)
+
+        out = StringIO()
+        call_command('check_reminders', stdout=out)
+        output = out.getvalue()
+
+        self.assertIn('task_normal', output)
+        self.assertNotIn('task_none', output)
+        self.assertNotIn('task_future', output)
+        self.assertNotIn('task_overdue', output)
+        self.assertNotIn('task_completed', output)

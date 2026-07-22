@@ -1,9 +1,6 @@
 from django.db import models
 from django.utils import timezone
 
-# Create your models here.
-
-
 class Task(models.Model):
     PRIORITY_HIGH = 1
     PRIORITY_MEDIUM = 2
@@ -28,6 +25,12 @@ class Task(models.Model):
         if self.due_at is None:
             return False
         return self.due_at < dt
+
+    @property
+    def is_past_due(self):
+        if self.due_at is None or self.completed:
+            return False
+        return self.due_at < timezone.now()
 
     def mark_completed(self):
         self.completed = True

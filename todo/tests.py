@@ -1,6 +1,8 @@
 from django.test import TestCase, Client
 from django.utils import timezone
-from datetime import datetime
+from datetime import datetime, timedelta
+from django.core.management import call_command
+from io import StringIO
 from todo.models import Task
 
 # Create your tests here.
@@ -200,3 +202,24 @@ class TodoViewTestCase(TestCase):
         response = client.post('/999/update', data)
 
         self.assertEqual(response.status_code, 404)
+
+
+class CheckRemindersCommandTestCase(TestCase):
+    def test_check_reminders_command(self):
+        now = timezone.now()
+        
+        Task.objects.create(title='task_normal', due_at=now + timedelta(hours=12))
+        Task.objects.create(title='task_none')
+        Task.objects.create(title='task_future', due_at=now + timedelta(days=2))
+        Task.objects.create(title='task_overdue', due_at=now - timedelta(hours=1))
+        Task.objects.create(title='task_completed', due_at=now + timedelta(hours=12), completed=True)
+
+        out = StringIO()
+        call_command('check_reminders', stdout=out)
+        output = out.getvalue()
+
+        self.assertIn('task_normal', output)
+        self.assertNotIn('task_none', output)
+        self.assertNotIn('task_future', output)
+        self.assertNotIn('task_overdue', output)
+        self.assertNotIn('task_completed', output)
